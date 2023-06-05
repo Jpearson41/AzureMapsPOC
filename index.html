@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, user-scalable=no" />
-    <title>My Contoso Indoor Maps App</title>
+    <title>Indoor Maps Demo Tracking App</title>
     
     <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" type="text/css" />
     <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/indoor/0.2/atlas-indoor.min.css" type="text/css" />
@@ -17,43 +17,21 @@
 
     <script>
         
-        const mapConfigurationID = 'a92d5e3f-84c8-aecf-ebeb-e65a99020a88';
-        const subscriptionKey = 'r7IfFwTpdzKxzJlB_FhqcmUnHj-ltlDdVk2fv41r8R0';
-        const statesetID = '4a7d5015-5329-58c6-8d6c-cd76ca3a1f09';
         atlas.setDomain('us.atlas.microsoft.com');
 
         var map, pin, lineSource, pinSource;
         var animation;
         var geolocationControl;
-        var routePoints = [
-                new atlas.data.Feature(new atlas.data.Point([-122.132461676523, 47.63670759985109]), { _timestamp: new Date('Wed, 10 May 2023 00:53:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.132461676523, 47.63668612735674]), { _timestamp: new Date('Wed, 10 May 2023 00:54:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.13236806905644, 47.63668344329429]), { _timestamp: new Date('Wed, 10 May 2023 00:56:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.1322704782929, 47.63668210126298]), { _timestamp: new Date('Wed, 10 May 2023 00:59:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.1321788624746, 47.63668612735674]), { _timestamp: new Date('Wed, 10 May 2023 01:02:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.13213106291718, 47.63664855047003]), { _timestamp: new Date('Wed, 10 May 2023 01:04:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.13213504621332, 47.63659486915728]), { _timestamp: new Date('Wed, 10 May 2023 01:06:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.13213504621332, 47.63653045150829]), { _timestamp: new Date('Wed, 10 May 2023 01:08:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.13213902950989, 47.6364633497067]), { _timestamp: new Date('Wed, 10 May 2023 01:10:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.13206932182183, 47.636433824887035]), { _timestamp: new Date('Wed, 10 May 2023 01:12:53 GMT').getTime() }),
-                new atlas.data.Feature(new atlas.data.Point([-122.1320474136912, 47.63643248284936]), { _timestamp: new Date('Wed, 10 May 2023 01:12:53 GMT').getTime() })
-            ];
+        
         function GetMap() {           
             //Initialize a map instance.
             var map = new atlas.Map('myMap', {
-                bounds: [
-                    -122.132858514411,
-                    47.636151996219,
-                    -122.131668500638,
-                    47.63695721695
-                ],
-                style: 'grayscale_light',
+                center: [-100, 40],
+                zoom: 4,
                 view: 'Auto',
-                zoom: 13,
-                mapConfiguration: mapConfigurationID,
-                styleAPIVersion: '2023-03-01-preview',
-                subscriptionKey: subscriptionKey
+                subscriptionKey: 'FDOZh4ozbgzgiXEUjXeLos7XxQ6puFO0okiKocbIxz8'
             });
+            
 
             map.events.add('ready', function () {
 
@@ -174,7 +152,12 @@
                     'Latitude:': position.coords.latitude,
                     //'Event Latitude:': e.geometry.coordinates,
                     'Longitude:': position.coords.longitude,
+<<<<<<< Updated upstream
                     'Timestamp:': e.properties.timestamp
+=======
+                    'Accuracy': position.coords.accuracy,
+                    'Timstamp:': e.properties.timestamp
+>>>>>>> Stashed changes
                 };
                 //console.log(outputValue);
                 document.getElementById('eventInfo').value = JSON.stringify(outputValue, null, '    ');
@@ -184,7 +167,6 @@
             geolocationControl.setOptions({
                 showUserLocation: document.getElementById('showUserLocation').checked,
                 trackUserLocation: document.getElementById('trackUserLocation').checked,
-                calculateMissingValues: document.getElementById('calculateMissingValues').checked,
                 updateMapCamera: document.getElementById('updateMapCamera').checked,
                 positionOption: {
                     enableHighAccuracy: document.getElementById('enableHighAccuracy').checked,
@@ -274,12 +256,6 @@
                     <tr title="Shows the users current location on the map and updates it as they move.">
                         <td>Track user location:</td>
                         <td><input id="trackUserLocation" type="checkbox" onclick="update()" title="Track user location" /></td>
-                    </tr>
-                    <tr
-                        title="Specifies that if the speed or heading values are missing in the geolocation position, it will calculate these values based on the last known position.">
-                        <td>Calculate missing values:</td>
-                        <td><input id="calculateMissingValues" type="checkbox" onclick="update()"
-                                title="Calculate missing values" /></td>
                     </tr>
                     <tr
                         title="Specifies if the map camera should update as the position moves. When set to `true`, the map camera will update to the new position, unless the user has interacted with the map.">
