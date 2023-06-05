@@ -19,8 +19,6 @@
         
         atlas.setDomain('us.atlas.microsoft.com');
 
-        var map, pin, lineSource, pinSource;
-        var animation;
         var geolocationControl;
         
         function GetMap() {           
@@ -32,132 +30,26 @@
                 subscriptionKey: 'FDOZh4ozbgzgiXEUjXeLos7XxQ6puFO0okiKocbIxz8'
             });
             
-
             map.events.add('ready', function () {
-
-                // Add a map style selection control.
-                const levelControl = new atlas.control.LevelControl({
-                    position: "top-right",
-                });
                 geolocationControl = new atlas.control.GeolocationControl();
 
-                //Add events to the control.
-
-                //Add control and a style control to the map.
                 map.controls.add(geolocationControl, {
                     position: 'bottom-right'
                 });
-                // Create an indoor maps manager and add a level control to the indoor manager.
-                indoorManager = new atlas.indoor.IndoorManager(map, {
-                    levelControl: levelControl,
-                    //statesetId: statesetId
-                });
-                //indoorManager.setDynamicStyling(true);
-            
                 // Add event for Displaying geolocation information.
                 map.events.add('geolocationerror', geolocationControl, displayEventInfo);
                 map.events.add('geolocationsuccess', geolocationControl, displayEventInfo);
-                // Add event for when the focused facility level changes.
-                map.events.add('levelchanged', indoorManager, (eventData) => {
-                    writeToInfoPanel('The level has changed:', eventData)
-                });
-                // Add event for when the focused facility changes.
-                map.events.add('facilitychanged', indoorManager, (eventData) => {
-                    writeToInfoPanel('The facility has changed:', eventData);
-                });
-                // Upon a mouse click, write the feature properties to the info panel.
-                map.events.add('click', function (e) {
-                    var features = map.layers.getRenderedShapes(e.position, 'unit');
-                    if (features.length > 0 && features[0].properties) {
-                        writeToInfoPanel('Feature clicked:', features[0].properties);
-                    }
-                    //lat&long data for a click event
-                    console.log(e.position)
-                });
-
-                //Load a custom image icon into the map resources.
-                map.imageSprite.createFromTemplate('arrow-icon', 'marker-arrow', 'teal', '#fff').then(function () {
-
-                    //Create data sources and add them to the map.
-                    lineSource = new atlas.source.DataSource();
-                    pinSource = new atlas.source.DataSource();
-                    map.sources.add([lineSource, pinSource]);
-
-                    //Create a layer to render the path.
-                    map.layers.add(new atlas.layer.LineLayer(lineSource, null, {
-                        strokeColor: 'Black',
-                        strokeWidth: 2
-                    }));
-
-                    //Extract the positions to highlight the full route on the map as a line.
-                    var path = [];
-                    routePoints.forEach(f => {
-                        path.push(f.geometry.coordinates);
-                    });
-                    //Create a line for the path and add it to the data source.
-                    lineSource.add(new atlas.data.LineString(path));
-
-                    //Create a layer to render a symbol which we will animate.
-                    map.layers.add(new atlas.layer.SymbolLayer(pinSource, null, {
-                        iconOptions: {
-                            //Pass in the id of the custom icon that was loaded into the map resources.
-                            image: 'arrow-icon',
-                            //Anchor the icon to the center of the image.
-                            anchor: 'center',
-                            //Rotate the icon based on the rotation property on the point data.
-                            //The arrow icon being used in this case points down, so we have to rotate it 180 degrees.
-                            rotation: ['+', 180, ['get', 'heading']],
-                            //Have the rotation align with the map.
-                            rotationAlignment: 'map',
-                            //For smoother animation, ignore the placement of the icon. This skips the label collision calculations and allows the icon to overlap map labels. 
-                            ignorePlacement: true,
-                            //For smoother animation, allow symbol to overlap all other symbols on the map.
-                            allowOverlap: true
-                        },
-                        textOptions: {
-                            //For smoother animation, ignore the placement of the text. This skips the label collision calculations and allows the text to overlap map labels.
-                            ignorePlacement: true,
-                            //For smoother animation, allow text to overlap all other symbols on the map.
-                            allowOverlap: true
-                        }
-                    }));
-                    //Create a pin and wrap with the shape class and add to data source.
-                    pin = new atlas.Shape(routePoints[0]);
-                    pinSource.add(pin);
-
-                    //Create the animation.
-                    animation = atlas.animations.moveAlongRoute(routePoints, pin, {
-                        //Specify the property that contains the timestamp.
-                        timestampProperty: 'timestamp',
-                        //Capture metadata so that data driven styling can be done.
-                        captureMetadata: true,
-                        //Animate such that 1 second of animation time = 1 minute of data time.
-                        speedMultiplier: 120,
-    
-                    });
-                });
             });
         }
-        function writeToInfoPanel(message, details) {
-            // Remove "map" object from json to prevent circular reference
-            var obj = Object.assign({}, details, { map: undefined });
-
-            document.getElementById('infoPanel-msg').innerHTML = message;
-            document.getElementById('infoPanel-json').value = JSON.stringify(obj, null, 3);
-        }
+        
         function displayEventInfo(e) {
             navigator.geolocation.getCurrentPosition((position) => {
                 outputValue = {
                     'Altitude:': position.coords.altitude,
                     'Latitude:': position.coords.latitude,
-                    //'Event Latitude:': e.geometry.coordinates,
                     'Longitude:': position.coords.longitude,
-<<<<<<< Updated upstream
-                    'Timestamp:': e.properties.timestamp
-=======
                     'Accuracy': position.coords.accuracy,
-                    'Timstamp:': e.properties.timestamp
->>>>>>> Stashed changes
+                    'Timestamp:': e.properties.timestamp,
                 };
                 //console.log(outputValue);
                 document.getElementById('eventInfo').value = JSON.stringify(outputValue, null, '    ');
@@ -229,17 +121,6 @@
 </head>
 <body onload="GetMap()">
     <div id="myMap" style="position:absolute;width:100%;height:85vh;"></div>
-    <!--<div id="infoPanel"
-        style="position:absolute;top:10px;width:23vh;height:23vh;background-color:white;padding:1px;">
-        <div id="infoPanel-msg"></div>
-        <textarea id="infoPanel-json" style="width:22vh;height:22vh;"></textarea>
-    </div>
-    <div style="position:absolute;top:225px;border-radius:5px;padding:5px;background-color:white;">
-        <input type="button" value="Play" onclick="animation.play()" title="Play" />
-        <input type="button" value="Pause" onclick="animation.pause()" title="Pause" />
-        <input type="button" value="Stop" onclick="animation.stop()" title="Stop" />
-        <input type="button" value="Reset" onclick="animation.reset()" title="Reset" />
-    </div>-->
     <div style="position:absolute">
         <fieldset class="sidePanel">
             <div class="tab">
